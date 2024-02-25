@@ -18,16 +18,16 @@ async function main() {
   ];
 
   for (const { line, color } of questions) {
-    const gambleChance = Math.random() < 0.8; // 30% chance to trigger the gamble
+    const gambleChance = Math.random() < 0.3; // 30% chance to trigger the gamble
     let doublePoints = false;
 
     const userColor = await ask(`What's the color of the ${line} line? `);
 
     if (gambleChance) {
       const gamble = await ask(
-        "Are you sure? Say 'yes' to keep your answer, 'double' to double or nothing! ",
+        "wanna double? say yes！ ",
       );
-      if (gamble.trim().toLowerCase() === "double") {
+      if (gamble.trim().toLowerCase() === "yes") {
         doublePoints = true; // The user accepts the gamble
         // Randomly decide if the gamble is true or just a bluff
         const isTrueGamble = Math.random() < 0.5;
@@ -45,14 +45,14 @@ async function main() {
       score += doublePoints ? 2 : 1; // Double points if the gamble was accepted and true
       say("Right!");
     } else {
-      score -= 2; // Deduct points for a wrong answer
+      score -= 5; // Deduct points for a wrong answer
       say(`Oops! The ${line} line is ${color}.`);
     }
   }
 
   // Final feedback based on score
   const finalMessage = score > 5
-    ? "Congratulations! You've won the game."
+    ? "Congratulations! You've won the gamble."
     : "Oh no, you've lost the game.";
   say(finalMessage + ` Your final score is ${score}.`);
 
