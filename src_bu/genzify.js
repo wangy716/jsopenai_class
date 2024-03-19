@@ -1,89 +1,184 @@
 import { ask, say } from "./shared/cli.js";
+import chalk from "chalk";
+import boxen from "boxen";
+import figlet from "figlet";
+import ora from "ora";
 import { gptPrompt } from "./shared/openai.js";
 
 async function main() {
-  say("GenZify Enabled...100%");
+  console.log(
+    chalk.green(
+      figlet.textSync("GenZify", { horizontalLayout: "full" }),
+    ),
+  );
+  console.log(
+    boxen(chalk.yellow("Welcome to GenZify - Your Slang Translator!"), {
+      padding: 1,
+      margin: 1,
+      borderStyle: "round",
+      borderColor: "blue",
+    }),
+  );
 
-  let conversationHistory = "";
-  let currentStatementForExplanation = ""; // This will hold the latest statement for explanation.
+  say("Choose a nation for slang exploration:");
+  say(chalk.yellow("1. United States"));
+  say(chalk.yellow("2. China"));
+  const nationChoice = await ask("Enter your choice (1/2): ");
+  let nation = nationChoice === "1" ? "United States" : "China";
+  let explorationCount = 0;
 
-  // Generate a conversation starter if the history is empty
-  if (conversationHistory === "") {
-    const genZStarterPrompt =
-      "Create a conversation starter in GenZ slang. (emojis are recommended)";
-    const genZStarter = await gptPrompt(genZStarterPrompt, {
-      temperature: 0.8,
-    });
-    if (genZStarter.toLowerCase().includes("byebye")) {
-      say("GenzFriend A: It was nice chatting! Byebye 👋");
-      return; // Exit the function
+  async function exploreSlang() {
+    explorationCount++;
+    const spinner = ora({
+      text: "Fetching new slang terms...",
+      spinner: "dots",
+      color: "green",
+    }).start();
+
+    const slangPrompt =
+      `List six new and different popular or emerging slang terms in ${nation} not previously mentioned. Please provide unique terms that were not included in previous explorations. Exploration attempt #${explorationCount}:`;
+
+    try {
+      const slangTerms = await gptPrompt(slangPrompt, {
+        temperature: 0.5,
+      });
+      spinner.succeed("New slang terms fetched!");
+      say(
+        boxen(chalk.magenta(slangTerms), {
+          padding: 1,
+          margin: 1,
+          borderStyle: "round",
+          borderColor: "magenta",
+        }),
+      );
+    } catch (error) {
+      spinner.fail("Failed to fetch slang terms.");
+      console.error(error.message);
     }
-    conversationHistory += `GenzFriend A: ${genZStarter}\n`;
-    currentStatementForExplanation = genZStarter; // Set the current statement to the starter for initial explanation.
-    say(`GenzFriend A: ${genZStarter}`);
+
+    postActionOptionsSlang();
   }
 
-  while (true) {
-    // Provide translation and explanations for the latest slang/selected translation
-    const explanationPrompt =
-      `Translate the slang into an easily understandable sentence first!!! And then use bulletpoints to briefly explain the slang & emoji used in this sentence without any greeting language: '${currentStatementForExplanation}'. Your response should follow the format of 'Translation:.... Explanation:....'`;
-    const slangExplanation = await gptPrompt(explanationPrompt, {
-      temperature: 0.5,
-    });
-    say(`${slangExplanation}`);
-
-    // Ask for user input
-    const userResponse = await ask(
-      "What do you want to respond? (Just in your words, Genzify got your back!)",
+  async function translatePhrase() {
+    const translationDirection = await ask(
+      "Translate from (1) Standard to Slang or (2) Slang to Standard? Enter 1 or 2: ",
     );
-    if (userResponse.toLowerCase().includes("byebye")) {
-      say("You: Byebye 👋");
-      break;
-    }
-    conversationHistory += `You: ${userResponse}\n`;
+    const phrase = await ask(
+      translationDirection === "1"
+        ? "Enter the standard phrase to translate to slang: "
+        : "Enter the slang phrase to translate to standard language: ",
+    );
 
-    // Generate multiple translations of the user's input considering the whole conversation
-    const translations = [];
-    const styles = [
-      "with lots of emojis 😄",
-      "in a casual brief genz tone",
-      "using trendy slang words",
-    ];
-    for (let i = 0; i < styles.length; i++) {
-      const translationPrompt =
-        `Given the conversation context, translate this to GenZ slang ${
-          styles[i]
-        }: '${userResponse}'`;
-      const translatedResponse = await gptPrompt(translationPrompt, {
+    const spinner = ora("Translating...").start();
+    const translationPrompt = `${
+      translationDirection === "1"
+        ? `Translate this standard phrase to ${nation} slang: '${phrase}'`
+        : `Translate this ${nation} slang to standard language: '${phrase}'`
+    }`;
+    try {
+      const translation = await gptPrompt(translationPrompt, {
         temperature: 0.7,
       });
-      translations.push(translatedResponse);
-      say(`${i + 1}: ${translatedResponse}`);
+      spinner.succeed("Translation complete:");
+      say(
+        boxen(chalk.cyan(translation), {
+          padding: 1,
+          margin: 1,
+          borderStyle: "round",
+          borderColor: "cyan",
+        }),
+      );
+    } catch (error) {
+      spinner.fail("Translation failed.");
+      console.error(error.message);
     }
 
-    // Let the user pick which translation to send
-    const selection = await ask("Pick one you like to send (1, 2, or 3):");
-    const selectedTranslation = translations[parseInt(selection) - 1];
-    conversationHistory += `You: ${selectedTranslation}\n`;
-    say(`You: ${selectedTranslation}`);
-    currentStatementForExplanation = selectedTranslation; // Update the statement for the next explanation.
-
-    // Generate a response from GenZ friend considering the entire conversation
-    const genzResponsePrompt =
-      `Considering the whole conversation, respond in GenZ slang: '${selectedTranslation}'`;
-    const genzResponse = await gptPrompt(genzResponsePrompt, {
-      temperature: 0.8,
-    });
-    if (genzResponse.toLowerCase().includes("byebye")) {
-      say(`GenzFriend A: ${genzResponse}`);
-      break;
-    }
-    conversationHistory += `GenzFriend A: ${genzResponse}\n`;
-    say(`GenzFriend A: ${genzResponse}`);
-    currentStatementForExplanation = genzResponse; // Update the statement for the next explanation.
+    postActionOptionsTranslate();
   }
 
-  say("The chat has ended. Thanks for using GenZify!");
+  async function postActionOptionsSlang() {
+    const option = await ask(
+      boxen(
+        chalk.yellow(
+          "What do you wanna do now? (1) Regenerate slang (2) Translate a phrase (3) Change nation (4) Quit",
+        ),
+        { padding: 1 },
+      ),
+    );
+    switch (option) {
+      case "1":
+        exploreSlang();
+        break;
+      case "2":
+        translatePhrase();
+        break;
+      case "3":
+        nation = await ask(
+          chalk.blue(
+            "Choose a new nation for slang exploration (United States/China):",
+          ),
+        );
+        explorationCount = 0; // Reset exploration count for the new nation
+        postActionOptionsSlang();
+        break;
+      case "4":
+        say(chalk.green("Thank you for using GenZify. Goodbye!"));
+        return;
+      default:
+        say(chalk.red("Invalid option. Please choose again."));
+        postActionOptionsSlang();
+        break;
+    }
+  }
+
+  async function postActionOptionsTranslate() {
+    const option = await ask(
+      boxen(
+        chalk.yellow(
+          "What do you wanna do now? (1) Translate another phrase(or another translation) (2) Explore slang (3) Change nation (4) Quit",
+        ),
+        { padding: 1 },
+      ),
+    );
+
+    switch (option) {
+      case "1":
+        translatePhrase();
+        break;
+      case "2":
+        exploreSlang();
+        break;
+      case "3":
+        nation = await ask(
+          chalk.blue(
+            "Choose a new nation for slang exploration (United States/China):",
+          ),
+        );
+        explorationCount = 0; // Reset for consistency, though it's mainly for exploreSlang
+        postActionOptionsTranslate();
+        break;
+      case "4":
+        say(chalk.green("Thank you for using GenZify. Goodbye!"));
+        return;
+      default:
+        say(chalk.red("Invalid option. Please choose again."));
+        postActionOptionsTranslate();
+        break;
+    }
+  }
+
+  const initialAction = await ask(
+    chalk.blue(
+      "Do you want to (1) explore popular slang or (2) translate a phrase? Enter 1 or 2:",
+    ),
+  );
+  if (initialAction === "1") {
+    exploreSlang();
+  } else if (initialAction === "2") {
+    translatePhrase();
+  } else {
+    say(chalk.red("Invalid selection. Exiting."));
+  }
 }
 
 main();
