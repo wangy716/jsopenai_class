@@ -1,0 +1,142 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: "VT323", monospace;
+    font-weight: 400;
+    font-style: normal;    
+    font-size: 25px;
+    background-color: white;
+    flex-direction: column; /* Ensure content is stacked vertically */
+}
+
+img{
+    height: 100%;
+    width: 10%;
+    mix-blend-mode: multiply; 
+}
+
+.title-container {
+    text-align: center; /* Center the title text within the container */
+    width: 100%; /* Full width to ensure center alignment */
+}
+
+
+.chat-container {
+    width: 80%;
+    max-width: 600px;
+    border: 2px solid #ff99cc;
+    background-color: #ffffff;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(255, 105, 180, 0.3);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-container {
+    width: 80%;
+    max-width: 600px;
+    border: 4px solid #ff99cc; /* Soft pink border */
+    background-color: #ffffff;
+    padding: 20px;
+    box-shadow: 0 10px 15px rgba(255, 105, 180, 0.3); /* Pink shadow for depth */
+    border-radius: 15px; /* Rounded corners */
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-history {
+    height: 300px;
+    overflow-y: auto;
+    border-bottom: 2px dashed #ffccff; /* Dashed pink line */
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-container {
+    display: flex; /* Enable flex layout */
+    justify-content: space-between; /* Space elements nicely */
+    align-items: center; /* Align items vertically */
+    margin-top: 10px; /* Optional margin for spacing */
+
+}
+
+.input-box {
+    flex-grow: 1; /* Allows the input box to fill the available space */
+    padding: 10px;
+    border: 2px solid #ffccff; /* Soft pink border */
+    border-radius: 10px; /* Rounded input field */
+    margin-right: 5px; /* Ensures a small gap between the input box and button */
+    font-family: "VT323", monospace;
+    font-weight: 400;
+    font-style: normal;    
+    font-size: 20px;
+
+
+}
+
+.send-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff66b2; /* Bright pink button */
+    color: white;
+    border-radius: 10px; /* Rounded button */
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap; /* Prevents the button text from wrapping */
+    font-family: "VT323", monospace;
+    font-weight: 400;
+    font-style: normal;   
+    font-size: 20px;
+ 
+}
+
+.send-button:hover {
+    background-color: #ff4081; /* Deeper pink on hover */
+}
+
+
+.message {
+    padding: 10px;
+    background-color: #e1f5fe; /* Light blue for bot messages */
+    border-radius: 15px; /* Highly rounded for a soft look */
+    margin-bottom: 10px;
+    width: fit-content;
+    max-width: 70%;
+    word-wrap: break-word;
+    margin-left: 10px; /* Ensure some margin on the left */
+}
+
+.user-message {
+    color: #ff66b2; /* Pink text */
+    background-color: #ffffff; /* White background */
+    border: 2px solid #ff66b2; /* Pink border */
+    align-self: flex-start; /* Align user messages to the left */
+    padding: 10px;
+    border-radius: 15px; /* Highly rounded for a soft look */
+    margin-bottom: 10px;
+    width: fit-content;
+    max-width: 70%;
+    word-wrap: break-word;
+    margin-left: 10px; /* Ensure some margin on the left */
+}
+
+.bot-message {
+    color: #ffffff; /* White text */
+    background-color: #ff66b2; /* Pink background */
+    border: 2px solid #ffffff; /* White border */
+    align-self: flex-end; /* Align bot messages to the right */
+    padding: 10px;
+    border-radius: 15px; /* Highly rounded for a soft look */
+    margin-bottom: 10px;
+    width: fit-content;
+    max-width: 70%;
+    word-wrap: break-word;
+    margin-right: 10px; /* Ensure some margin on the right */
+}
